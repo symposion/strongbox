@@ -1,12 +1,17 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.jobs.properties.*;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 
 import javax.inject.Inject;
+import java.util.List;
+
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 /**
  * @author Kate Novik.
+ * @author Przemyslaw Fusik
  */
 public class ClearRepositoryTrashCronJob
         extends JavaCronJob
@@ -30,6 +35,16 @@ public class ClearRepositoryTrashCronJob
         {
             repositoryManagementService.deleteTrash(storageId, repositoryId);
         }
+    }
+
+    @Override
+    public List<CronJobProperty> getProperties()
+    {
+        return Arrays.asList(new CronJobProperty[]{
+                new CronJobStorageIdAutocompleteProperty(new CronJobStringTypeProperty(
+                        new CronJobOptionalProperty(new CronJobNamedProperty("storageId")))),
+                new CronJobRepositoryIdAutocompleteProperty(new CronJobStringTypeProperty(
+                        new CronJobOptionalProperty(new CronJobNamedProperty("repositoryId")))) });
     }
 
 }

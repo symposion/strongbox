@@ -2,6 +2,7 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.jobs.properties.*;
 import org.carlspring.strongbox.services.ChecksumService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -9,8 +10,10 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Map;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
@@ -57,6 +60,20 @@ public class RegenerateChecksumCronJob
         {
             checksumService.regenerateChecksum(storageId, repositoryId, basePath, forceRegeneration);
         }
+    }
+
+    @Override
+    public List<CronJobProperty> getProperties()
+    {
+        return Arrays.asList(new CronJobProperty[]{
+                new CronJobStorageIdAutocompleteProperty(new CronJobStringTypeProperty(
+                        new CronJobOptionalProperty(new CronJobNamedProperty("storageId")))),
+                new CronJobRepositoryIdAutocompleteProperty(new CronJobStringTypeProperty(
+                        new CronJobOptionalProperty(new CronJobNamedProperty("repositoryId")))),
+                new CronJobBooleanTypeProperty(
+                        new CronJobOptionalProperty(new CronJobNamedProperty("forceRegeneration"))),
+                new CronJobStringTypeProperty(
+                        new CronJobOptionalProperty(new CronJobNamedProperty("basePath"))) });
     }
 
     /**

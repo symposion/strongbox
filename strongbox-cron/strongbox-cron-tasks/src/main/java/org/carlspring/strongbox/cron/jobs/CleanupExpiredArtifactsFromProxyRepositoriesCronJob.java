@@ -1,9 +1,13 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.jobs.properties.*;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryExpiredArtifactsCleaner;
 
 import javax.inject.Inject;
+import java.util.List;
+
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 /**
  * @author Przemyslaw Fusik
@@ -50,6 +54,16 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJob
         }
 
         proxyRepositoryObsoleteArtifactsCleaner.cleanup(lastAccessedTimeInDays, minSizeInBytes);
+    }
+
+    @Override
+    public List<CronJobProperty> getProperties()
+    {
+        return Arrays.asList(new CronJobProperty[]{
+                new CronJobIntegerTypeProperty(
+                        new CronJobRequiredProperty(new CronJobNamedProperty("lastAccessedTimeInDays"))),
+                new CronJobIntegerTypeProperty(
+                        new CronJobOptionalProperty(new CronJobNamedProperty("minSizeInBytes"))) });
     }
 
 }

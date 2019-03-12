@@ -2,11 +2,14 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.cron.CronJobStatusEnum;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.jobs.properties.CronJobProperty;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 
 import javax.inject.Inject;
+
+import java.util.List;
 
 import org.quartz.*;
 import org.slf4j.Logger;
@@ -112,5 +115,7 @@ public abstract class AbstractCronJob
     {
         this.status = status;
     }
+
+    public abstract List<CronJobProperty> getProperties();
 
 }
