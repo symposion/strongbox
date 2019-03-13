@@ -9,12 +9,10 @@ import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
  * @author Kate Novik.
@@ -22,6 +20,24 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 public class RegenerateChecksumCronJob
         extends JavaCronJob
 {
+
+    private static final String PROPERTY_STORAGE_ID = "storageId";
+
+    private static final String PROPERTY_REPOSITORY_ID = "repositoryId";
+
+    private static final String PROPERTY_BASE_PATH = "basePath";
+
+    private static final String PROPERTY_FORCE_REGENERATION = "forceRegeneration";
+
+    private static final List<CronJobProperty> PROPERTIES = Arrays.asList(new CronJobProperty[]{
+            new CronJobStorageIdAutocompleteProperty(new CronJobStringTypeProperty(
+                    new CronJobOptionalProperty(new CronJobNamedProperty(PROPERTY_STORAGE_ID)))),
+            new CronJobRepositoryIdAutocompleteProperty(new CronJobStringTypeProperty(
+                    new CronJobOptionalProperty(new CronJobNamedProperty(PROPERTY_REPOSITORY_ID)))),
+            new CronJobBooleanTypeProperty(
+                    new CronJobOptionalProperty(new CronJobNamedProperty(PROPERTY_FORCE_REGENERATION))),
+            new CronJobStringTypeProperty(
+                    new CronJobOptionalProperty(new CronJobNamedProperty(PROPERTY_BASE_PATH))) });
 
     @Inject
     private ChecksumService checksumService;
@@ -33,16 +49,16 @@ public class RegenerateChecksumCronJob
     public void executeTask(CronTaskConfigurationDto config)
             throws Throwable
     {
-        String storageId = config.getProperty("storageId");
-        String repositoryId = config.getProperty("repositoryId");
-        String basePath = config.getProperty("basePath");
+        String storageId = config.getProperty(PROPERTY_STORAGE_ID);
+        String repositoryId = config.getProperty(PROPERTY_REPOSITORY_ID);
+        String basePath = config.getProperty(PROPERTY_BASE_PATH);
 
         /**
          * The values of forceRegeneration are:
          * - true  - to re-write existing checksum and to regenerate missing checksum,
          * - false - to regenerate missing checksum only
          */
-        boolean forceRegeneration = Boolean.valueOf(config.getProperty("forceRegeneration"));
+        boolean forceRegeneration = Boolean.valueOf(config.getProperty(PROPERTY_FORCE_REGENERATION));
 
         if (storageId == null)
         {
@@ -65,15 +81,19 @@ public class RegenerateChecksumCronJob
     @Override
     public List<CronJobProperty> getProperties()
     {
-        return Arrays.asList(new CronJobProperty[]{
-                new CronJobStorageIdAutocompleteProperty(new CronJobStringTypeProperty(
-                        new CronJobOptionalProperty(new CronJobNamedProperty("storageId")))),
-                new CronJobRepositoryIdAutocompleteProperty(new CronJobStringTypeProperty(
-                        new CronJobOptionalProperty(new CronJobNamedProperty("repositoryId")))),
-                new CronJobBooleanTypeProperty(
-                        new CronJobOptionalProperty(new CronJobNamedProperty("forceRegeneration"))),
-                new CronJobStringTypeProperty(
-                        new CronJobOptionalProperty(new CronJobNamedProperty("basePath"))) });
+        return PROPERTIES;
+    }
+
+    @Override
+    public String getName()
+    {
+        return "Regenerate Checksum Cron Job";
+    }
+
+    @Override
+    public String getDescription()
+    {
+        return "Regenerate Checksum Cron Job";
     }
 
     /**
@@ -82,13 +102,11 @@ public class RegenerateChecksumCronJob
      * @param storageId         path of storage
      * @param forceRegeneration true - to re-write existing checksum and to regenerate missing checksum,
      *                          false - to regenerate missing checksum only
-     * @throws NoSuchAlgorithmException
-     * @throws XmlPullParserException
      * @throws IOException
      */
     private void regenerateRepositoriesChecksum(String storageId,
                                                 boolean forceRegeneration)
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException
+            throws IOException
     {
         Map<String, Repository> repositories = getRepositories(storageId);
 

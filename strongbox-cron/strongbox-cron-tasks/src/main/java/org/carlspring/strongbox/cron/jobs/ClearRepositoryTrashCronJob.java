@@ -17,6 +17,16 @@ public class ClearRepositoryTrashCronJob
         extends JavaCronJob
 {
 
+    private static final String PROPERTY_STORAGE_ID = "storageId";
+
+    private static final String PROPERTY_REPOSITORY_ID = "repositoryId";
+
+    private static final List<CronJobProperty> PROPERTIES = Arrays.asList(new CronJobProperty[]{
+            new CronJobStorageIdAutocompleteProperty(new CronJobStringTypeProperty(
+                    new CronJobOptionalProperty(new CronJobNamedProperty(PROPERTY_STORAGE_ID)))),
+            new CronJobRepositoryIdAutocompleteProperty(new CronJobStringTypeProperty(
+                    new CronJobOptionalProperty(new CronJobNamedProperty(PROPERTY_REPOSITORY_ID)))) });
+
     @Inject
     private RepositoryManagementService repositoryManagementService;
 
@@ -24,8 +34,8 @@ public class ClearRepositoryTrashCronJob
     public void executeTask(CronTaskConfigurationDto config)
             throws Throwable
     {
-        String storageId = config.getProperty("storageId");
-        String repositoryId = config.getProperty("repositoryId");
+        String storageId = config.getProperty(PROPERTY_STORAGE_ID);
+        String repositoryId = config.getProperty(PROPERTY_REPOSITORY_ID);
 
         if (storageId == null && repositoryId == null)
         {
@@ -40,11 +50,19 @@ public class ClearRepositoryTrashCronJob
     @Override
     public List<CronJobProperty> getProperties()
     {
-        return Arrays.asList(new CronJobProperty[]{
-                new CronJobStorageIdAutocompleteProperty(new CronJobStringTypeProperty(
-                        new CronJobOptionalProperty(new CronJobNamedProperty("storageId")))),
-                new CronJobRepositoryIdAutocompleteProperty(new CronJobStringTypeProperty(
-                        new CronJobOptionalProperty(new CronJobNamedProperty("repositoryId")))) });
+        return PROPERTIES;
+    }
+
+    @Override
+    public String getName()
+    {
+        return "Clear Repository Trash Cron Job";
+    }
+
+    @Override
+    public String getDescription()
+    {
+        return "Clear Repository Trash Cron Job";
     }
 
 }

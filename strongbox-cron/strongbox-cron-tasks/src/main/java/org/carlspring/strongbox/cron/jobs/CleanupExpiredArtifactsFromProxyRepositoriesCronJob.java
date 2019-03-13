@@ -16,6 +16,16 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJob
         extends JavaCronJob
 {
 
+    private static final String PROPERTY_LAST_ACCESSED_TIME_IN_DAYS = "lastAccessedTimeInDays";
+
+    private static final String PROPERTY_MIN_SIZE_IN_BYTES = "minSizeInBytes";
+
+    private static final List<CronJobProperty> PROPERTIES = Arrays.asList(new CronJobProperty[]{
+            new CronJobIntegerTypeProperty(
+                    new CronJobRequiredProperty(new CronJobNamedProperty(PROPERTY_LAST_ACCESSED_TIME_IN_DAYS))),
+            new CronJobIntegerTypeProperty(
+                    new CronJobOptionalProperty(new CronJobNamedProperty(PROPERTY_MIN_SIZE_IN_BYTES))) });
+
     @Inject
     private LocalStorageProxyRepositoryExpiredArtifactsCleaner proxyRepositoryObsoleteArtifactsCleaner;
 
@@ -23,8 +33,8 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJob
     public void executeTask(final CronTaskConfigurationDto config)
             throws Throwable
     {
-        final String lastAccessedTimeInDaysText = config.getRequiredProperty("lastAccessedTimeInDays");
-        final String minSizeInBytesText = config.getProperty("minSizeInBytes");
+        final String lastAccessedTimeInDaysText = config.getRequiredProperty(PROPERTY_LAST_ACCESSED_TIME_IN_DAYS);
+        final String minSizeInBytesText = config.getProperty(PROPERTY_MIN_SIZE_IN_BYTES);
 
         final Integer lastAccessedTimeInDays;
         try
@@ -59,11 +69,19 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJob
     @Override
     public List<CronJobProperty> getProperties()
     {
-        return Arrays.asList(new CronJobProperty[]{
-                new CronJobIntegerTypeProperty(
-                        new CronJobRequiredProperty(new CronJobNamedProperty("lastAccessedTimeInDays"))),
-                new CronJobIntegerTypeProperty(
-                        new CronJobOptionalProperty(new CronJobNamedProperty("minSizeInBytes"))) });
+        return PROPERTIES;
+    }
+
+    @Override
+    public String getName()
+    {
+        return "Cleanup Expired Artifacts From Proxy Repositories Cron Job";
+    }
+
+    @Override
+    public String getDescription()
+    {
+        return "Cleanup Expired Artifacts From Proxy Repositories Cron Job";
     }
 
 }

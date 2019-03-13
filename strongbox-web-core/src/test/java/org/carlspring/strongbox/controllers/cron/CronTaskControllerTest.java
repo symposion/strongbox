@@ -175,6 +175,18 @@ public class CronTaskControllerTest
         deleteConfig(cronUuid);
     }
 
+    @Test
+    public void testListCronJobs()
+    {
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(getContextBaseUrl() + "/types/list")
+               .peek()
+               .then()
+               .statusCode(OK);
+    }
+
     private CronTaskConfigurationForm createForm(String name,
                                                  String cronExpression,
                                                  String className)

@@ -5,6 +5,7 @@ import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
 import org.carlspring.strongbox.cron.domain.GroovyScriptNamesDto;
+import org.carlspring.strongbox.cron.jobs.AbstractCronJob;
 import org.carlspring.strongbox.cron.jobs.GroovyCronJob;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
@@ -15,14 +16,18 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.commons.collections.CollectionUtils;
+import org.reflections.Reflections;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -200,6 +205,21 @@ public class CronTaskController
         logger.debug(message);
 
         return getSuccessfulResponseEntity(SUCCESSFUL_DELETE_CONFIGURATION, acceptHeader);
+    }
+
+    @ApiOperation(value = "Lists all of the cron task types and the field types of those tasks.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_CONFIGURATION),
+                            @ApiResponse(code = 404, message = NOT_FOUND_CONFIGURATION)})
+    @GetMapping(value = "/types/list",
+            produces = { MediaType.APPLICATION_JSON_VALUE,
+                         MediaType.APPLICATION_XML_VALUE })
+    public ResponseEntity listCronJobs(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+    {
+        Set<Class<? extends AbstractCronJob>> cronJobs = new Reflections("org.carlspring.strongbox").getSubTypesOf(
+                AbstractCronJob.class).stream().filter(
+                c -> !Modifier.isAbstract(c.getModifiers()) && !c.isInterface()).collect(Collectors.toSet());
+
+        return ResponseEntity.ok().build();
     }
 
     @ApiOperation(value = "Used to get the configuration on given cron task UUID")

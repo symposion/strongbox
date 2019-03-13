@@ -48,7 +48,6 @@ public abstract class AbstractCronJob
 
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext)
-        throws JobExecutionException
     {
 
         String jobKey = jobExecutionContext.getJobDetail().getKey().getName();
@@ -96,7 +95,6 @@ public abstract class AbstractCronJob
 
     @Override
     public void interrupt()
-        throws UnableToInterruptJobException
     {
     }
 
@@ -117,5 +115,9 @@ public abstract class AbstractCronJob
     }
 
     public abstract List<CronJobProperty> getProperties();
+
+    public abstract String getName();
+
+    public abstract String getDescription();
 
 }
